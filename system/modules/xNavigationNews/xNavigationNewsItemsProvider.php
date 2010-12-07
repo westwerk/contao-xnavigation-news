@@ -53,7 +53,8 @@ class xNavigationNewsItemsProvider extends xNavigationProvider
 			if (	$this instanceof ModuleXSitemap
 				||	$objCurrentPage->xnav_news_items_visibility == 'map_always'
 				||	$objCurrentPage->xnav_news_items_visibility == 'map_default'
-				&&	($blnCurrentPageActive || $blnCurrentPageTrail))
+				&&	($blnCurrentPageActive || $blnCurrentPageTrail)
+				&&	($intHardLevel == 0 || $intHardLevel > 0 &&  $intLevel<=$intHardLevel))
 			{
 				$this->import('Database');
 		
