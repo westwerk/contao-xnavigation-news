@@ -23,7 +23,7 @@
  * PHP version 5
  * @copyright  InfinitySoft 2010
  * @author     Tristan Lins <tristan.lins@infinitysoft.de>
- * @package    xNavigation - News
+ * @package    xNavigation News
  * @license    http://opensource.org/licenses/lgpl-3.0.html
  */
 
@@ -31,120 +31,58 @@
 /**
  * Table tl_page
  */
-/*
-$GLOBALS['TL_DCA']['tl_page']['palettes']['__selector__'][] = 'xNavigation_includeContentItems';
-foreach (array('regular', 'forward', 'redirect') as $type) {
+$GLOBALS['TL_DCA']['tl_page']['palettes']['__selector__'][] = 'xnav_include_news_items';
+
+foreach (array('root', 'regular', 'forward', 'redirect') as $type) {
 	$GLOBALS['TL_DCA']['tl_page']['palettes'][$type] = preg_replace(
-		'/,(sitemap,)?hide([^;]*;)/',
-		',sitemap,xNavigation$2{xNavigation_legend:hide},xNavigationIncludeArticles,xNavigationIncludeNewsArchives;{xNavigationNewsArchives_legend:hide},xNavigationNewsArchives,xNavigationNewsArchivePosition,xNavigationNewsArchiveFormat,xNavigationNewsArchiveShowQuantity,xNavigationNewsArchiveJumpTo;',
+		'#(\{expert_legend(?::hide)?\}.*);#U',
+		'$1,xnav_include_news_items;',
 		$GLOBALS['TL_DCA']['tl_page']['palettes'][$type]);
 }
-$GLOBALS['TL_DCA']['tl_page']['palettes']['root'] = str_replace(
-		',includeChmod;',
-		',includeChmod;{xNavigation_legend:hide},xNavigationIncludeArticles,xNavigationIncludeNewsArchives;{xNavigationNewsArchives_legend:hide},xNavigationNewsArchives,xNavigationNewsArchivePosition,xNavigationNewsArchiveFormat,xNavigationNewsArchiveShowQuantity,xNavigationNewsArchiveJumpTo;',
-		$GLOBALS['TL_DCA']['tl_page']['palettes']['root']);
 
-if (!isset($GLOBALS['TL_DCA']['tl_page']['fields']['sitemap'])) {
-	$GLOBALS['TL_DCA']['tl_page']['fields']['sitemap'] = array
-	(
-		'label'                   => &$GLOBALS['TL_LANG']['tl_page']['sitemap'],
-		'exclude'                 => true,
-		'inputType'               => 'select',
-		'options'                 => array('map_default', 'map_always', 'map_never'),
-		'eval'                    => array('maxlength'=>32, 'tl_class'=>'w50'),
-		'reference'               => &$GLOBALS['TL_LANG']['tl_page']
-	);
-}
+$GLOBALS['TL_DCA']['tl_page']['subpalettes']['xnav_include_news_items'] = 'xnav_news_items_visibility,xnav_news_items_limit,xnav_news_archives';
 
-$GLOBALS['TL_DCA']['tl_page']['fields']['xNavigation'] = array
+$GLOBALS['TL_DCA']['tl_page']['fields']['xnav_include_news_items'] = array
 (
-	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xNavigation'],
-	'exclude'                 => true,
-	'inputType'               => 'select',
-	'options'                 => array('map_default', 'map_always', 'map_never'),
-	'eval'                    => array('maxlength'=>32, 'tl_class'=>'w50'),
-	'reference'               => &$GLOBALS['TL_LANG']['tl_page'],
-	'load_callback'           => array(
-		array('tl_page_xNavigation', 'loadXNavigation')
-	)
-);
-
-$GLOBALS['TL_DCA']['tl_page']['fields']['xNavigationIncludeArticles'] = array
-(
-	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xNavigationIncludeArticles'],
-	'exclude'                 => true,
-	'inputType'               => 'select',
-	'options'                 => array('map_active', 'map_always', 'map_never'),
-	'eval'                    => array('maxlength'=>32, 'tl_class'=>'w50', 'alwaysSave'=>true),
-	'reference'               => &$GLOBALS['TL_LANG']['tl_page']
-);
-
-$GLOBALS['TL_DCA']['tl_page']['fields']['xNavigationIncludeNewsArchives'] = array
-(
-	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xNavigationIncludeNewsArchives'],
-	'exclude'                 => true,
-	'inputType'               => 'select',
-	'options'                 => array('map_active', 'map_always', 'map_never'),
-	'eval'                    => array('maxlength'=>32, 'tl_class'=>'w50'),
-	'reference'               => &$GLOBALS['TL_LANG']['tl_page']
-);
-
-$GLOBALS['TL_DCA']['tl_page']['fields']['xNavigationNewsArchives'] = array
-(
-	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xNavigationNewsArchives'],
+	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xnav_include_news_items'],
 	'exclude'                 => true,
 	'inputType'               => 'checkbox',
-	'options_callback'        => array('tl_page_xNavigation', 'getNewsArchives'),
-	'eval'                    => array('multiple'=>true, 'tl_class'=>'w50')
+	'eval'                    => array('submitOnChange'=>true, 'tl_class'=>'clr')
 );
 
-$GLOBALS['TL_DCA']['tl_page']['fields']['xNavigationNewsArchivePosition'] = array
+$GLOBALS['TL_DCA']['tl_page']['fields']['xnav_news_items_visibility'] = array
 (
-	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xNavigationNewsArchivePosition'],
+	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xnav_news_items_visibility'],
+	'exclude'                 => true,
+	'inputType'               => 'select',
+	'options'                 => array('map_default', 'map_always'),
+	'eval'                    => array('maxlength'=>32, 'tl_class'=>'w50'),
+	'reference'               => &$GLOBALS['TL_LANG']['tl_page']
+);
+
+$GLOBALS['TL_DCA']['tl_page']['fields']['xnav_news_items_limit'] = array
+(
+	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xnav_news_items_limit'],
 	'default'                 => '0',
 	'exclude'                 => true,
-	'inputType'               => 'select',
-	'options_callback'        => array('tl_page_xNavigation', 'getNewsArchivePositions'),
-	'eval'                    => array('tl_class'=>'w50')
+	'inputType'               => 'text',
+	'eval'                    => array('rgxp'=>'digit', 'tl_class'=>'w50')
 );
 
-$GLOBALS['TL_DCA']['tl_page']['fields']['xNavigationNewsArchiveFormat'] = array
+$GLOBALS['TL_DCA']['tl_page']['fields']['xnav_news_archives'] = array
 (
-	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xNavigationNewsArchiveFormat'],
-	'default'                 => 'news_month',
-	'exclude'                 => true,
-	'inputType'               => 'select',
-	'options'                 => array('news_month', 'news_year'),
-	'reference'               => &$GLOBALS['TL_LANG']['tl_page'],
-	'eval'                    => array('tl_class'=>'w50 clr'),
-	'wizard' => array
-	(
-		array('tl_page_xNavigation', 'hideStartDay')
-	)
-);
-
-$GLOBALS['TL_DCA']['tl_page']['fields']['xNavigationNewsArchiveShowQuantity'] = array
-(
-	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xNavigationNewsArchiveShowQuantity'],
+	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xnav_news_archives'],
 	'exclude'                 => true,
 	'inputType'               => 'checkbox',
-	'eval'                    => array('tl_class'=>'w50')
+	'options_callback'        => array('tl_page_xnav_news_items', 'getNewsArchives'),
+	'eval'                    => array('multiple'=>true)
 );
 
-$GLOBALS['TL_DCA']['tl_page']['fields']['xNavigationNewsArchiveJumpTo'] = array
-(
-	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xNavigationNewsArchiveJumpTo'],
-	'exclude'                 => true,
-	'inputType'               => 'pageTree',
-	'eval'                    => array('fieldType'=>'radio', 'tl_class'=>'clr')
-);
-
-class tl_page_xNavigation extends Backend
+class tl_page_xnav_news_items extends Backend
 {
-
 	/**
 	 * Import the back end user object
-	 * /
+	 */
 	public function __construct()
 	{
 		parent::__construct();
@@ -154,7 +92,7 @@ class tl_page_xNavigation extends Backend
 	/**
 	 * Get all news archives and return them as array
 	 * @return array
-	 * /
+	 */
 	public function getNewsArchives()
 	{
 		if (!$this->User->isAdmin && !is_array($this->User->news))
@@ -175,5 +113,5 @@ class tl_page_xNavigation extends Backend
 
 		return $arrForms;
 	}
-*/
+}
 ?>

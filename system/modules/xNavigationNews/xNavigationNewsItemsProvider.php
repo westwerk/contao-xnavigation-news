@@ -23,37 +23,113 @@
  * PHP version 5
  * @copyright  InfinitySoft 2010
  * @author     Tristan Lins <tristan.lins@infinitysoft.de>
- * @package    xNavigation - News
+ * @package    xNavigation News
  * @license    http://opensource.org/licenses/lgpl-3.0.html
  */
 
 
-class xNavigationContentProvider extends xNavigationProvider
+/**
+ * Class xNavigationNewsItemsProvider
+ * 
+ * xNavigation provider to generate news items.
+ * @copyright  InfinitySoft 2010
+ * @author     Tristan Lins <tristan.lins@infinitysoft.de>
+ * @package    xNavigation News
+ */
+class xNavigationNewsItemsProvider extends xNavigationProvider
 {
-	public function generateItems(DC_Table $objCurrentPage, $blnActive, &$arrItems, $arrGroups, $intLevel, $intMaxLevel) 
+	public function generateItems(ModuleXNavigation &$objXNavigation,
+		Database_Result $objCurrentPage,
+		$blnCurrentPageActive,
+		$blnCurrentPageTrail,
+		&$arrItems,
+		$intLevel,
+		$intMaxLevel,
+		$intHardLevel) 
 	{
-		
-		// Get news navigation
-		if (	$objCurrentPageID > 0
-			&& (	$objCurrentPage->xNavigationIncludeNewsArchives == 'map_always'
-				||  (	$this instanceof ModuleXSitemap
-					|| $blnActive)
-				&& 	$objCurrentPage->xNavigationIncludeNewsArchives == 'map_active'))
+		if ($objCurrentPage->xnav_include_news_items)
 		{
-			$objNewsArchives = unserialize($objCurrentPage->xNavigationNewsArchives);
-			$this->generateNewsItems($objCurrentPage, $objNewsArchives, $arrItems, $time);
+			// Get news navigation
+			if (	$this instanceof ModuleXSitemap
+				||	$objCurrentPage->xnav_news_items_visibility == 'map_always'
+				||	$objCurrentPage->xnav_news_items_visibility == 'map_default'
+				&&	($blnCurrentPageActive || $blnCurrentPageTrail))
+			{
+				$this->import('Database');
+		
+				$arrNewsArchives = unserialize($objCurrentPage->xnav_news_archives);
+				$time = time();
+				$objNews = $this->Database->prepare("
+						SELECT
+							*
+						FROM
+							tl_news
+						WHERE
+							pid IN (" . implode(array_map('intval', $arrNewsArchives)) . ")
+						AND	published=1
+						AND	(	(start='' || start>$time)
+							OR	(stop='' || stop<$time))");
+				if ($objCurrentPage->xnav_news_items_limit > 0)
+				{
+					$objNews->limit($objCurrentPage->xnav_news_items_limit);
+				}
+				$objNews = $objNews->execute();
+				
+				while ($objNews->next())
+				{
+					$objNewsArchive = $this->Database->prepare("
+							SELECT
+								*
+							FROM
+								tl_news_archive
+							WHERE
+								id=?")
+						->execute($objNews->pid);
+					if ($objNewsArchive->next())
+					{
+						$arrJumpTo = $GLOBALS['objPage']->row();
+						if ($objNewsArchive->jumpTo > 0)
+						{
+							$objJumpTo = $this->Database->prepare("
+									SELECT
+										*
+									FROM
+										tl_page
+									WHERE
+										id=?")
+								->execute($objNewsArchive->jumpTo);
+							if ($objJumpTo->next())
+							{
+								$arrJumpTo = $objJumpTo->row();
+							}
+						}
+						
+						$row = $objNews->row();
+						$row['isActive'] = ($this->Input->get('items') == $objNews->id || $this->Input->get('items') == $objNews->alias);
+						$row['subitems'] = '';
+						$row['class'] = '';
+						$row['title'] = specialchars($objNews->headline);
+						$row['link'] = $objNews->headline;
+						$row['href'] = $this->generateFrontendUrl($arrJumpTo, '/items/' . (strlen($objNews->alias) ? $objNews->alias : $objNews->id));
+						$row['itemtype'] = 'news';
+						
+						$arrItems[] = $row;
+					}
+				}
+			}
 		}
 	}
 	
 	/**
-	 * Generate the news archive items.
+	 * Generate the news items.
 	 * 
 	 * @param Database_Result $objCurrentPage
 	 * @param array $objNewsArchives
 	 * @param array $arrItems
 	 * @param integer $time
 	 */
-	protected function generateNewsItems(Database_Result &$objCurrentPage, &$objNewsArchives, &$arrItems, $time) {
+	protected function generateNewsItems(Database_Result &$objCurrentPage, &$arrItems) {
+		/*
 		$arrData = array();
 		$maxQuantity = 0;
 		switch ($objCurrentPage->xNavigationNewsArchiveFormat) {
@@ -128,7 +204,7 @@ class xNavigationContentProvider extends xNavigationProvider
 			$arrItems[$n]['class'] = trim($arrItems[$n]['class'] . ' first_news_archive');
 			$arrItems[$last]['class'] = trim($arrItems[$last]['class'] . ' last_news_archive');
 		}
+		*/
 	}
-	
 }
 ?>
