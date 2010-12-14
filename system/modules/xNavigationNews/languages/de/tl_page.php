@@ -31,9 +31,25 @@
 /**
  * Fields
  */
-$GLOBALS['TL_LANG']['tl_page']['xnav_include_news_items']    = array('Nachrichtenbeiträge im Menü anzeigen', '');
-$GLOBALS['TL_LANG']['tl_page']['xnav_news_items_visibility'] = array('Nachrichtenbeiträge anzeigen', '');
-$GLOBALS['TL_LANG']['tl_page']['xnav_news_archives']         = array('Archiv für Nachrichtenbeiträge', '');
-$GLOBALS['TL_LANG']['tl_page']['xnav_news_items_limit']      = array('Anzahl Nachrichtenbeiträge anzeigen', '');
+$GLOBALS['TL_LANG']['tl_page']['xnav_include_news_items']       = array('Nachrichtenbeiträge im Menü anzeigen', '');
+$GLOBALS['TL_LANG']['tl_page']['xnav_news_items_visibility']    = array('Nachrichtenbeiträge anzeigen', '');
+$GLOBALS['TL_LANG']['tl_page']['xnav_news_items_limit']         = array('Anzahl Nachrichtenbeiträge anzeigen', '');
+$GLOBALS['TL_LANG']['tl_page']['xnav_news_archives']            = array('Nachrichtenarchive', '');
+$GLOBALS['TL_LANG']['tl_page']['xnav_include_news_archives']    = array('Nachrichtenarchive im Menü anzeigen', '');
+$GLOBALS['TL_LANG']['tl_page']['xnav_news_archives_visibility'] = array('Nachrichtenarchive anzeigen', '');
+$GLOBALS['TL_LANG']['tl_page']['xnav_news_archives_scope']      = array('Archivformat', '');
+$GLOBALS['TL_LANG']['tl_page']['xnav_news_archives_quantity']   = array('Anzahl der Beiträge anzeigen', '');
+$GLOBALS['TL_LANG']['tl_page']['xnav_news_archives']            = array('Nachrichtenarchive', '');
+$GLOBALS['TL_LANG']['tl_page']['xnav_news_archives_jumpTo']     = array('Weiterleitungsseite', '');
+
+
+/**
+ * Reference
+ */
+$GLOBALS['TL_LANG']['tl_page']['xnav_news_items_legend']    = 'Erweiterte Navigation - Nachrichtenbeiträge';
+$GLOBALS['TL_LANG']['tl_page']['xnav_news_archives_legend'] = 'Erweiterte Navigation - Nachrichtenarchive';
+$GLOBALS['TL_LANG']['tl_page']['news_day']                  = 'Tag';
+$GLOBALS['TL_LANG']['tl_page']['news_month']                = 'Monat';
+$GLOBALS['TL_LANG']['tl_page']['news_year']                 = 'Jahr';
 
 ?>

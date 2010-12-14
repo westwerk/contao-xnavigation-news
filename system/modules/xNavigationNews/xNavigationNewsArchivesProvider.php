@@ -36,7 +36,6 @@
  * @author     Tristan Lins <tristan.lins@infinitysoft.de>
  * @package    xNavigation News
  */
-/*
 class xNavigationNewsArchivesProvider extends xNavigationProvider
 {
 	public function generateItems(ModuleXNavigation &$objXNavigation,
@@ -48,19 +47,20 @@ class xNavigationNewsArchivesProvider extends xNavigationProvider
 		$intMaxLevel,
 		$intHardLevel) 
 	{
-		if ($objCurrentPage->xnav_include_news_items)
+		if ($objCurrentPage->xnav_include_news_archives)
 		{
 			// Get news navigation
 			if (	$this instanceof ModuleXSitemap
-				||	$objCurrentPage->xnav_news_items_visibility == 'map_always'
-				||	$objCurrentPage->xnav_news_items_visibility == 'map_default'
-				&&	($blnCurrentPageActive || $blnCurrentPageTrail))
+				||	$objCurrentPage->xnav_news_archives_visibility == 'map_always'
+				||	$objCurrentPage->xnav_news_archives_visibility == 'map_default'
+				&&	($blnCurrentPageActive || $blnCurrentPageTrail)
+				&&	($intHardLevel == 0 || $intHardLevel > 0 &&  $intLevel<=$intHardLevel))
 			{
 				$this->import('Database');
 			
 				$arrData = array();
 				$maxQuantity = 0;
-				switch ($objCurrentPage->xNavigationNewsArchiveFormat) {
+				switch ($objCurrentPage->xnav_news_archives_scope) {
 				case 'news_year':
 					$format = 'Y';
 					$param = 'year';
@@ -71,47 +71,49 @@ class xNavigationNewsArchivesProvider extends xNavigationProvider
 					$param = 'month';
 				}
 		
-				$jumpTo = $objCurrentPage->row();
-				if ($objCurrentPage->xNavigationNewsArchiveJumpTo > 0) {
-					$objJumpTo = $this->Database->prepare("SELECT * FROM tl_page WHERE id = ?")
-												->execute($objCurrentPage->xNavigationNewsArchiveJumpTo);
-					if ($objJumpTo->next())
-						$jumpTo = $objJumpTo->row();
-				}
-				
-				foreach ($objNewsArchives as $id)
+				$arrNewsArchives = unserialize($objCurrentPage->xnav_news_archives);
+				$time = time();
+				$objArchives = $this->Database->prepare("
+						SELECT
+							date
+						FROM
+							tl_news
+						WHERE
+							pid IN (" . implode(array_map('intval', $arrNewsArchives)) . ")
+							" . (!BE_USER_LOGGED_IN ? " AND (start='' OR start<$time) AND (stop='' OR stop>$time) AND published=1" : "") . "
+						ORDER BY date DESC")
+					->execute($id);
+	
+				while ($objArchives->next())
 				{
-					// Get all active items
-					$objArchives = $this->Database->prepare("SELECT date FROM tl_news WHERE pid=?" . (!BE_USER_LOGGED_IN ? " AND (start='' OR start<$time) AND (stop='' OR stop>$time) AND published=1" : "") . " ORDER BY date DESC")
-												  ->execute($id);
-		
-					while ($objArchives->next())
-					{
-						++$arrData[date($format, $objArchives->date)];
-						if ($arrData[date($format, $objArchives->date)] > $maxQuantity) {
-							$maxQuantity = $arrData[date($format, $objArchives->date)];
-						}
+					++$arrData[date($format, $objArchives->date)];
+					if ($arrData[date($format, $objArchives->date)] > $maxQuantity) {
+						$maxQuantity = $arrData[date($format, $objArchives->date)];
 					}
 				}
 				krsort($arrData);
 				
-				$url = $this->generateFrontendUrl($jumpTo, sprintf('/%s/%%s', $param));
-				
+				$objJumpTo = $objCurrentPage;
+				if ($objCurrentPage->xnav_news_archives_jumpTo > 0)
+				{
+					$objJumpTo = $this->getPageDetails($objCurrentPage->xnav_news_archives_jumpTo);
+				}
+				$url = $this->generateFrontendUrl($objJumpTo->row(), sprintf('/%s/%%s', $param));
 				if (count($arrData)) {
 					$n = count($arrItems);
 					foreach ($arrData as $intDate => $intCount) {
 						$quantity = sprintf((($intCount < 2) ? $GLOBALS['TL_LANG']['MSC']['entry'] : $GLOBALS['TL_LANG']['MSC']['entries']), $intCount);
-						switch ($objCurrentPage->xNavigationNewsArchiveFormat) {
+						switch ($objCurrentPage->xnav_news_archives_scope) {
 						case 'news_year':
 							$intYear = $intDate;
 							$intMonth = '0';
-							$link = $title = specialchars($intYear . ($objCurrentPage->xNavigationNewsArchiveShowQuantity=='1' ? ' (' . $quantity . ')' : ''));
+							$link = $title = specialchars($intYear . ($objCurrentPage->xnav_news_archives_quantity=='1' ? ' (' . $quantity . ')' : ''));
 							break;
 						case 'news_month':
 						default:
 							$intYear = intval(substr($intDate, 0, 4));
 							$intMonth = intval(substr($intDate, 4));
-							$link = $title = specialchars($GLOBALS['TL_LANG']['MONTHS'][$intMonth-1].' '.$intYear . ($objCurrentPage->xNavigationNewsArchiveShowQuantity=='1' ? ' (' . $quantity . ')' : ''));
+							$link = $title = specialchars($GLOBALS['TL_LANG']['MONTHS'][$intMonth-1].' '.$intYear . ($objCurrentPage->xnav_news_archives_quantity=='1' ? ' (' . $quantity . ')' : ''));
 						}
 						
 						$arrItems[] = array(
@@ -119,7 +121,7 @@ class xNavigationNewsArchivesProvider extends xNavigationProvider
 							'link' => $link,
 							'href' => sprintf($url, $intDate),
 							'title' => $title,
-							'isActive' => ($this->Input->get($param) == $intDate),
+							'isActive' => ($objJumpTo->id == $GLOBALS['objPage']->id && $this->Input->get($param) == $intDate),
 							'quantity' => $quantity,
 							'maxQuantity' => $maxQuantity,
 							'itemtype' => 'news_archive',
@@ -136,5 +138,5 @@ class xNavigationNewsArchivesProvider extends xNavigationProvider
 		}
 	}
 }
-*/
+
 ?>

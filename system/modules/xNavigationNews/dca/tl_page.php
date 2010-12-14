@@ -32,15 +32,17 @@
  * Table tl_page
  */
 $GLOBALS['TL_DCA']['tl_page']['palettes']['__selector__'][] = 'xnav_include_news_items';
+$GLOBALS['TL_DCA']['tl_page']['palettes']['__selector__'][] = 'xnav_include_news_archives';
 
 foreach (array('root', 'regular', 'forward', 'redirect') as $type) {
 	$GLOBALS['TL_DCA']['tl_page']['palettes'][$type] = preg_replace(
 		'#(\{expert_legend(?::hide)?\}.*);#U',
-		'$1,xnav_include_news_items;',
+		'$1;{xnav_news_items_legend},xnav_include_news_items;{xnav_news_archives_legend},xnav_include_news_archives;',
 		$GLOBALS['TL_DCA']['tl_page']['palettes'][$type]);
 }
 
-$GLOBALS['TL_DCA']['tl_page']['subpalettes']['xnav_include_news_items'] = 'xnav_news_items_visibility,xnav_news_items_limit,xnav_news_archives';
+// news items
+$GLOBALS['TL_DCA']['tl_page']['subpalettes']['xnav_include_news_items'] = 'xnav_news_items_visibility,xnav_news_items_limit,xnav_news_items_archives';
 
 $GLOBALS['TL_DCA']['tl_page']['fields']['xnav_include_news_items'] = array
 (
@@ -49,7 +51,6 @@ $GLOBALS['TL_DCA']['tl_page']['fields']['xnav_include_news_items'] = array
 	'inputType'               => 'checkbox',
 	'eval'                    => array('submitOnChange'=>true, 'tl_class'=>'clr')
 );
-
 $GLOBALS['TL_DCA']['tl_page']['fields']['xnav_news_items_visibility'] = array
 (
 	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xnav_news_items_visibility'],
@@ -68,14 +69,64 @@ $GLOBALS['TL_DCA']['tl_page']['fields']['xnav_news_items_limit'] = array
 	'inputType'               => 'text',
 	'eval'                    => array('rgxp'=>'digit', 'tl_class'=>'w50')
 );
+$GLOBALS['TL_DCA']['tl_page']['fields']['xnav_news_items_archives'] = array
+(
+	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xnav_news_items_archives'],
+	'exclude'                 => true,
+	'inputType'               => 'checkbox',
+	'options_callback'        => array('tl_page_xnav_news_items', 'getNewsArchives'),
+	'eval'                    => array('multiple'=>true, 'tl_class'=>'clr')
+);
 
+// news archives
+$GLOBALS['TL_DCA']['tl_page']['subpalettes']['xnav_include_news_archives'] = 'xnav_news_archives_visibility,xnav_news_archives_scope,xnav_news_archives_quantity,xnav_news_archives,xnav_news_archives_jumpTo';
+
+$GLOBALS['TL_DCA']['tl_page']['fields']['xnav_include_news_archives'] = array
+(
+	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xnav_include_news_archives'],
+	'exclude'                 => true,
+	'inputType'               => 'checkbox',
+	'eval'                    => array('submitOnChange'=>true, 'tl_class'=>'clr')
+);
+$GLOBALS['TL_DCA']['tl_page']['fields']['xnav_news_archives_visibility'] = array
+(
+	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xnav_news_items_visibility'],
+	'exclude'                 => true,
+	'inputType'               => 'select',
+	'options'                 => array('map_default', 'map_always'),
+	'eval'                    => array('maxlength'=>32, 'tl_class'=>'w50'),
+	'reference'               => &$GLOBALS['TL_LANG']['tl_page']
+);
+$GLOBALS['TL_DCA']['tl_page']['fields']['xnav_news_archives_scope'] = array
+(
+	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xnav_news_archives_scope'],
+	'exclude'                 => true,
+	'inputType'               => 'select',
+	'options'                 => array('news_year', 'news_month'),
+	'eval'                    => array('maxlength'=>32, 'tl_class'=>'w50'),
+	'reference'               => &$GLOBALS['TL_LANG']['tl_page']
+);
+$GLOBALS['TL_DCA']['tl_page']['fields']['xnav_news_archives_quantity'] = array
+(
+	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xnav_news_archives_quantity'],
+	'exclude'                 => true,
+	'inputType'               => 'checkbox',
+	'eval'                    => array('tl_class'=>'clr')
+);
 $GLOBALS['TL_DCA']['tl_page']['fields']['xnav_news_archives'] = array
 (
 	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xnav_news_archives'],
 	'exclude'                 => true,
 	'inputType'               => 'checkbox',
 	'options_callback'        => array('tl_page_xnav_news_items', 'getNewsArchives'),
-	'eval'                    => array('multiple'=>true)
+	'eval'                    => array('multiple'=>true, 'tl_class'=>'clr')
+);
+$GLOBALS['TL_DCA']['tl_page']['fields']['xnav_news_archives_jumpTo'] = array
+(
+	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['xnav_news_archives_jumpTo'],
+	'exclude'                 => true,
+	'inputType'               => 'pageTree',
+	'eval'                    => array('fieldType'=>'radio')
 );
 
 class tl_page_xnav_news_items extends Backend

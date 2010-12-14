@@ -32,5 +32,6 @@
  * HOOKs
  */
 $GLOBALS['TL_HOOKS']['xNavigationProvider'][] = array('xNavigationNewsItemsProvider', 'generateItems');
+$GLOBALS['TL_HOOKS']['xNavigationProvider'][] = array('xNavigationNewsArchivesProvider', 'generateItems');
 
 ?>
