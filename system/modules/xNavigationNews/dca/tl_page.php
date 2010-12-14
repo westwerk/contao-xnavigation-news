@@ -37,7 +37,7 @@ $GLOBALS['TL_DCA']['tl_page']['palettes']['__selector__'][] = 'xnav_include_news
 foreach (array('root', 'regular', 'forward', 'redirect') as $type) {
 	$GLOBALS['TL_DCA']['tl_page']['palettes'][$type] = preg_replace(
 		'#(\{expert_legend(?::hide)?\}.*);#U',
-		'$1;{xnav_news_items_legend},xnav_include_news_items;{xnav_news_archives_legend},xnav_include_news_archives;',
+		'$1;{xnav_news_items_legend:hide},xnav_include_news_items;{xnav_news_archives_legend:hide},xnav_include_news_archives;',
 		$GLOBALS['TL_DCA']['tl_page']['palettes'][$type]);
 }
 
