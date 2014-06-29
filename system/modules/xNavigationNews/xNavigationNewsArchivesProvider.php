@@ -79,7 +79,7 @@ class xNavigationNewsArchivesProvider extends xNavigationProvider
 						FROM
 							tl_news
 						WHERE
-							pid IN (" . implode(array_map('intval', $arrNewsArchives)) . ")
+							pid IN (" . implode(',',array_map('intval', $arrNewsArchives)) . ")
 							" . (!BE_USER_LOGGED_IN ? " AND (start='' OR start<$time) AND (stop='' OR stop>$time) AND published=1" : "") . "
 						ORDER BY date DESC")
 					->execute($id);
