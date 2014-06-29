@@ -125,7 +125,7 @@ class xNavigationNewsArchivesProvider extends xNavigationProvider
 							'quantity' => $quantity,
 							'maxQuantity' => $maxQuantity,
 							'itemtype' => 'news_archive',
-							'class' => ''
+							'class' => ($objJumpTo->id == $GLOBALS['objPage']->id && $this->Input->get($param) == $intDate)? 'active':'',
 						);
 					}
 					
